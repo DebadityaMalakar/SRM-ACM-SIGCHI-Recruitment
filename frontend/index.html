@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Registration</title>
+    <style>
+        /* Reset and base styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1f4e79 0%, #2c5aa0 100%);
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        /* Header styles */
+        header {
+            text-align: center;
+            padding: 40px 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            color: #333;
+            border-radius: 0;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        header h1 {
+            font-size: 2.8rem;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, #1f4e79 0%, #ff6600 50%, #2c5aa0 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 700;
+        }
+        
+        header p {
+            font-size: 1.3rem;
+            opacity: 0.8;
+            color: #555;
+        }
+        
+        /* Main content layout */
+        .main-content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+        }
+        
+        .registration-section, .registrations-section {
+            flex: 1;
+            min-width: 320px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 30px;
+            border-radius: 0;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .registration-section:hover, .registrations-section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+        }
+        
+        .section-title {
+            font-size: 1.8rem;
+            margin-bottom: 25px;
+            color: #333;
+            text-align: center;
+            position: relative;
+        }
+        
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50px;
+            height: 3px;
+            background: linear-gradient(135deg, #1f4e79 0%, #ff6600 100%);
+            border-radius: 0;
+        }
+        
+        /* Form styles */
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+            font-size: 1.1rem;
+        }
+        
+        input[type="text"],
+        input[type="email"] {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 0;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.9);
+        }
+        
+        input[type="text"]:focus,
+        input[type="email"]:focus {
+            border-color: #1f4e79;
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(31, 78, 121, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .error {
+            color: #e74c3c;
+            font-size: 0.9rem;
+            margin-top: 8px;
+            display: none;
+            font-weight: 500;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        .btn:hover::before {
+            left: 100%;
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+        
+        .btn:active {
+            transform: translateY(-1px);
+        }
+        
+        /* Registrations table */
+        .registrations-section h2 {
+            margin-bottom: 25px;
+            color: #333;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        
+        th, td {
+            padding: 15px 20px;
+            text-align: left;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+        
+        tbody tr {
+            transition: all 0.3s ease;
+        }
+        
+        tbody tr:hover {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.05), rgba(118, 75, 162, 0.05));
+            transform: scale(1.02);
+        }
+        
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+        
+        /* Alert styles */
+        .alert {
+            position: fixed;
+            top: -100px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 500px;
+            padding: 20px 25px;
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            text-align: center;
+            z-index: 1000;
+            transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+        }
+        
+        .alert-success {
+            background: linear-gradient(135deg, rgba(46, 204, 113, 0.95), rgba(39, 174, 96, 0.95));
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .alert-error {
+            background: linear-gradient(135deg, rgba(231, 76, 60, 0.95), rgba(192, 57, 43, 0.95));
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .alert.show {
+            top: 30px;
+            animation: slideInBounce 0.6s ease-out;
+        }
+        
+        @keyframes slideInBounce {
+            0% {
+                transform: translateX(-50%) translateY(-100px) scale(0.8);
+                opacity: 0;
+            }
+            60% {
+                transform: translateX(-50%) translateY(10px) scale(1.05);
+                opacity: 1;
+            }
+            100% {
+                transform: translateX(-50%) translateY(0) scale(1);
+                opacity: 1;
+            }
+        }
+        
+        /* Loading animation */
+        .loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+        
+        .btn.loading::after {
+            content: '';
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: translateY(-50%) rotate(0deg); }
+            100% { transform: translateY(-50%) rotate(360deg); }
+        }
+        
+        /* Responsive styles */
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+            }
+            
+            header h1 {
+                font-size: 2.2rem;
+            }
+            
+            header p {
+                font-size: 1.1rem;
+            }
+            
+            .container {
+                padding: 15px;
+            }
+            
+            .registration-section, .registrations-section {
+                padding: 20px;
+            }
+            
+            th, td {
+                padding: 12px 15px;
+                font-size: 0.95rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .registration-section, .registrations-section {
+                padding: 15px;
+            }
+            
+            header {
+                padding: 30px 15px;
+            }
+            
+            header h1 {
+                font-size: 1.9rem;
+            }
+            
+            .alert {
+                width: 95%;
+                padding: 15px 20px;
+            }
+        }
+        
+        /* WUXGA (1920x1200) and WUXGA HD (1920x1080) specific styles */
+        @media (min-width: 1920px) {
+            .container {
+                max-width: 1600px;
+            }
+            
+            header {
+                padding: 50px 0;
+            }
+            
+            header h1 {
+                font-size: 3.5rem;
+            }
+            
+            header p {
+                font-size: 1.6rem;
+            }
+            
+            .registration-section, .registrations-section {
+                padding: 40px;
+            }
+            
+            .section-title {
+                font-size: 2.2rem;
+            }
+            
+            input[type="text"],
+            input[type="email"] {
+                padding: 18px 25px;
+                font-size: 1.2rem;
+            }
+            
+            .btn {
+                padding: 18px 35px;
+                font-size: 1.3rem;
+            }
+            
+            th, td {
+                padding: 18px 25px;
+                font-size: 1.2rem;
+            }
+            
+            label {
+                font-size: 1.2rem;
+            }
+        }
+        
+        /* Ultra-wide monitors */
+        @media (min-width: 2560px) {
+            .container {
+                max-width: 2000px;
+            }
+            
+            header h1 {
+                font-size: 4rem;
+            }
+            
+            .section-title {
+                font-size: 2.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>SRM ACM SIGCHI Recruitment Process for 2nd Years</h1>
+        </header>
+        
+        <div class="main-content">
+            <section class="registration-section">
+                <h2 class="section-title">Event Registration</h2>
+                <form id="registrationForm">
+                    <div class="form-group">
+                        <label for="name">Full Name</label>
+                        <input type="text" id="name" name="name" placeholder="Enter your full name" required>
+                        <div class="error" id="nameError">Please enter your full name</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" name="email" placeholder="Enter your email address" required>
+                        <div class="error" id="emailError">Please enter a valid email address</div>
+                    </div>
+                    
+                    <button type="submit" class="btn" id="submitBtn">Register Now</button>
+                </form>
+            </section>
+            
+            <section class="registrations-section">
+                <h2 class="section-title">Registered Participants</h2>
+                <div class="table-container">
+                    <table id="registrationsTable">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Registration Time</th>
+                            </tr>
+                        </thead>
+                        <tbody id="registrationsBody">
+                            <!-- Registrations will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+    </div>
+    
+    <div class="alert" id="alert"></div>
+
+    <script>
+        // Embed jQuery loading functionality
+        (function(w, d, u) {
+            var s = d.createElement('script'); 
+            s.async = true; 
+            s.src = u;
+            var x = d.getElementsByTagName('script')[0]; 
+            x.parentNode.insertBefore(s, x);
+        })(window, document, 'https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js');
+        
+        // Wait for jQuery to load and initialize app
+        function waitForJQuery() {
+            if (window.jQuery) {
+                initApp();
+            } else {
+                setTimeout(waitForJQuery, 50);
+            }
+        }
+        
+        function initApp() {
+            // Simulated backend - using localStorage for demo purposes
+            const STORAGE_KEY = 'event_registrations';
+            
+            // DOM elements
+            const registrationForm = document.getElementById('registrationForm');
+            const nameInput = document.getElementById('name');
+            const emailInput = document.getElementById('email');
+            const nameError = document.getElementById('nameError');
+            const emailError = document.getElementById('emailError');
+            const registrationsBody = document.getElementById('registrationsBody');
+            const alert = document.getElementById('alert');
+            const submitBtn = document.getElementById('submitBtn');
+            
+            // Enhanced email validation regex
+            const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+            
+            // Show alert function with enhanced animation
+            function showAlert(message, isSuccess = true) {
+                alert.textContent = message;
+                alert.className = `alert ${isSuccess ? 'alert-success' : 'alert-error'}`;
+                alert.classList.add('show');
+                
+                // Auto dismiss after 7 seconds with fade out
+                setTimeout(() => {
+                    alert.style.opacity = '0';
+                    setTimeout(() => {
+                        alert.classList.remove('show');
+                        alert.style.opacity = '1';
+                    }, 300);
+                }, 7000);
+            }
+            
+            // Enhanced form validation
+            function validateForm() {
+                let isValid = true;
+                
+                // Name validation - more comprehensive
+                const name = nameInput.value.trim();
+                if (name === '') {
+                    nameError.textContent = 'Please enter your full name';
+                    nameError.style.display = 'block';
+                    isValid = false;
+                } else if (name.length < 2) {
+                    nameError.textContent = 'Name must be at least 2 characters long';
+                    nameError.style.display = 'block';
+                    isValid = false;
+                } else {
+                    nameError.style.display = 'none';
+                }
+                
+                // Email validation - enhanced
+                const email = emailInput.value.trim();
+                if (email === '') {
+                    emailError.textContent = 'Please enter your email address';
+                    emailError.style.display = 'block';
+                    isValid = false;
+                } else if (!emailRegex.test(email)) {
+                    emailError.textContent = 'Please enter a valid email address';
+                    emailError.style.display = 'block';
+                    isValid = false;
+                } else {
+                    emailError.style.display = 'none';
+                }
+                
+                return isValid;
+            }
+            
+            // Get registrations from storage
+            function getRegistrations() {
+                const stored = localStorage.getItem(STORAGE_KEY);
+                return stored ? JSON.parse(stored) : [];
+            }
+            
+            // Save registrations to storage
+            function saveRegistrations(registrations) {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(registrations));
+                // Simulate backend logging
+                console.log('Backend Log - New Registration Data:', registrations[registrations.length - 1]);
+            }
+            
+            // Check for duplicate registration
+            function isDuplicateEmail(email) {
+                const registrations = getRegistrations();
+                return registrations.some(reg => reg.email.toLowerCase() === email.toLowerCase());
+            }
+            
+            // Fetch and display registrations
+            function fetchRegistrations() {
+                const registrations = getRegistrations();
+                registrationsBody.innerHTML = '';
+                
+                if (registrations && registrations.length > 0) {
+                    registrations.forEach((registration, index) => {
+                        const row = document.createElement('tr');
+                        row.style.animationDelay = `${index * 0.1}s`;
+                        row.innerHTML = `
+                            <td>${registration.name}</td>
+                            <td>${registration.email}</td>
+                            <td>${new Date(registration.timestamp).toLocaleString()}</td>
+                        `;
+                        registrationsBody.appendChild(row);
+                    });
+                } else {
+                    registrationsBody.innerHTML = `
+                        <tr>
+                            <td colspan="3" style="text-align: center; opacity: 0.6; font-style: italic;">
+                                No registrations yet. Be the first to register!
+                            </td>
+                        </tr>
+                    `;
+                }
+            }
+            
+            // Enhanced form submission with loading state
+            registrationForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                if (!validateForm()) {
+                    showAlert('Please fix the errors in the form', false);
+                    return;
+                }
+                
+                const name = nameInput.value.trim();
+                const email = emailInput.value.trim();
+                
+                // Check for duplicate registration
+                if (isDuplicateEmail(email)) {
+                    showAlert('This email is already registered for the event!', false);
+                    return;
+                }
+                
+                // Add loading state
+                submitBtn.classList.add('loading');
+                submitBtn.textContent = 'Registering...';
+                
+                // Simulate API call delay
+                setTimeout(() => {
+                    try {
+                        // Get existing registrations
+                        const registrations = getRegistrations();
+                        
+                        // Create new registration
+                        const newRegistration = {
+                            id: Date.now(),
+                            name: name,
+                            email: email,
+                            timestamp: new Date().toISOString()
+                        };
+                        
+                        // Add to registrations
+                        registrations.push(newRegistration);
+                        
+                        // Save to storage (simulating backend)
+                        saveRegistrations(registrations);
+                        
+                        // Success feedback
+                        showAlert(`🎉 Welcome ${name}! Registration successful.`);
+                        registrationForm.reset();
+                        fetchRegistrations();
+                        
+                    } catch (error) {
+                        console.error('Registration error:', error);
+                        showAlert('Registration failed. Please try again.', false);
+                    } finally {
+                        // Remove loading state
+                        submitBtn.classList.remove('loading');
+                        submitBtn.textContent = 'Register Now';
+                    }
+                }, 1500); // Simulate network delay
+            });
+            
+            // Real-time validation feedback
+            nameInput.addEventListener('blur', validateForm);
+            emailInput.addEventListener('blur', validateForm);
+            
+            // Clear error on input
+            nameInput.addEventListener('input', () => {
+                if (nameInput.value.trim() !== '') {
+                    nameError.style.display = 'none';
+                }
+            });
+            
+            emailInput.addEventListener('input', () => {
+                if (emailInput.value.trim() !== '') {
+                    emailError.style.display = 'none';
+                }
+            });
+            
+            // Initial load of registrations
+            fetchRegistrations();
+            
+            // Auto-refresh registrations every 30 seconds (simulate real-time updates)
+            setInterval(fetchRegistrations, 30000);
+        }
+        
+        // Initialize app when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', waitForJQuery);
+        } else {
+            waitForJQuery();
+        }
+    </script>
+</body>
+</html>
