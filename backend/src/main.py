@@ -5,6 +5,11 @@ from datetime import datetime
 import json
 import os
 from typing import List
+import logging
+
+logging.basicConfig(level=logging.INFO)
+
+logging.info("Starting the Event Registration API...")
 
 app = FastAPI()
 
@@ -41,7 +46,7 @@ def save_registrations(registrations: List[dict]):
         json.dump(registrations, f, indent=2, default=str)
 
 @app.post("/register", response_model=dict)
-async def register(registration: RegistrationRequest):
+def register(registration: RegistrationRequest):
     if not registration.name.strip():
         raise HTTPException(status_code=400, detail="Name cannot be empty")
     
@@ -51,7 +56,7 @@ async def register(registration: RegistrationRequest):
         "timestamp": datetime.now()
     }
     
-    print(f"New registration: {registration_data}")
+    logging.info(registration_data)
     
     registrations = load_registrations()
     registrations.append(registration_data)

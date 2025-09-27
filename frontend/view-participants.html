@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Participants</title>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Open+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Open Sans', sans-serif;
+            background-color: #f8f9fa;
+            color: #1a1a1a;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            font-family: 'IBM Plex Mono', monospace;
+            font-weight: 500;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            font-size: 1.5rem;
+        }
+
+        .participants-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .participants-table th,
+        .participants-table td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .participants-table th {
+            background-color: #f5f5f5;
+            font-weight: 600;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.9rem;
+        }
+
+        .participants-table tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            font-family: 'IBM Plex Mono', monospace;
+        }
+
+        .error {
+            color: #d32f2f;
+            text-align: center;
+            padding: 1rem;
+            font-family: 'IBM Plex Mono', monospace;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                margin: 1rem;
+                padding: 1rem;
+            }
+            
+            .participants-table {
+                font-size: 0.9rem;
+            }
+            
+            .participants-table th,
+            .participants-table td {
+                padding: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <center><a href="index.html">Go Back to Registration</a></center>
+    <div class="container">
+        <h1>REGISTERED PARTICIPANTS</h1>
+        <div id="participantsContainer">
+            <div class="loading">Loading participants...</div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            fetch('http://localhost:8000/registrations')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch participants');
+                    }
+                    return response.json();
+                })
+                .then(participants => {
+                    const container = document.getElementById('participantsContainer');
+                    
+                    if (participants.length === 0) {
+                        container.innerHTML = '<div class="loading">No participants registered yet.</div>';
+                        return;
+                    }
+
+                    let tableHTML = `
+                        <table class="participants-table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Registration Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                    `;
+
+                    participants.forEach(participant => {
+                        const date = new Date(participant.timestamp);
+                        const formattedDate = date.toLocaleString();
+                        
+                        tableHTML += `
+                            <tr>
+                                <td>${participant.name}</td>
+                                <td>${participant.email}</td>
+                                <td>${formattedDate}</td>
+                            </tr>
+                        `;
+                    });
+
+                    tableHTML += `
+                            </tbody>
+                        </table>
+                    `;
+
+                    container.innerHTML = tableHTML;
+                })
+                .catch(error => {
+                    document.getElementById('participantsContainer').innerHTML = 
+                        `<div class="error">Error loading participants: ${error.message}</div>`;
+                });
+        });
+    </script>
+</body>
+</html>
